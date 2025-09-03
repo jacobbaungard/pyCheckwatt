@@ -29,6 +29,8 @@ from datetime import date, datetime, timedelta
 from aiohttp import ClientError, ClientResponseError, ClientSession
 from dateutil.relativedelta import relativedelta
 
+from simple_jwt import jwt
+
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -232,6 +234,10 @@ class CheckwattManager:
                 # CheckWatt want us to back down.
                 return False
             _LOGGER.debug("Kill-switch not enabled, continue")
+
+            # if the token is not expired, do not login again
+            if self.jwt_token and not jwt.is_expired(self.jwt_token):
+                return True
 
             credentials = f"{self.username}:{self.password}"
             encoded_credentials = base64.b64encode(credentials.encode("utf-8")).decode(
