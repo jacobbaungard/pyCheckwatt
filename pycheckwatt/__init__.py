@@ -918,7 +918,7 @@ class CheckwattManager:
         """Fetch Price Zone from CheckWatt."""
 
         try:
-            endpoint = "/ems/pricezone"
+            endpoint = f"/site/Statuses?serial={self.rpi_serial}"
             # Define headers with the JwtToken
             headers = {
                 **self._get_headers(),
@@ -933,7 +933,8 @@ class CheckwattManager:
             ) as response:
                 response.raise_for_status()
                 if response.status == 200:
-                    self.price_zone = await response.text()
+                    status = await response.json()
+                    self.price_zone=status[0]["Mba"]
                     return True
 
                 _LOGGER.error(
